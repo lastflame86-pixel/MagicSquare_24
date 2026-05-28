@@ -1,0 +1,45 @@
+---
+description: ECB layers, dependency direction, component examples
+globs: "src/magicsquare/**/*.py"
+alwaysApply: false
+---
+
+# MagicSquare — ECB Architecture
+
+**Pattern:** ECB (Entity–Control–Boundary)
+
+**Design alignment:** `Report/MagicSquare-TDD-Design-Report.md` §6.2 컴포넌트와 동일 의미 유지.
+
+## Layers
+
+### boundary
+
+- **Role:** 외부 입출력 — UI, API, CLI, 파일·JSON 파싱, 결과 직렬화
+- **Examples:** `GridInput` (원시 입력 → 정규화 격자 또는 REJECTED/INCOMPLETE), `ValidationReporter` (ValidationResult → OUT-01~04)
+- **Must not:** S·V·M 마방진 규칙 판정 로직; entity 내부 상태를 외부 계약 없이 변경
+
+### control
+
+- **Role:** 비즈니스 로직·유스케이스 — 판정 흐름, S→V→M 순서, 위반 ID 부여
+- **Examples:** `MagicSquareValidator.validate(grid) → ValidationResult`
+- **Must not:** CLI/파일 포맷 하드코딩; boundary 없이 외부 세계 직접 접근
+
+### entity
+
+- **Role:** 도메인 데이터·규칙 — 격자 값 객체, RuleCatalog, ValidationResult, 불변 정의
+- **Examples:** `RuleCatalog` (S1/S2/V1/M1~M4·I1~I7), `ValidationResult`, `User` (학습용)
+- **Must not:** 입출력·프레임워크 의존; **control·boundary import**
+
+## Dependency direction
+
+**Allowed:**
+
+- `boundary → control → entity`
+- `control → entity`
+- `boundary → entity` (DTO·값 객체 전달만, 판정 로직 없이)
+
+**Forbidden:**
+
+- `entity → control`
+- `entity → boundary`
+- `entity → pytest` / stdlib 이외 인프라

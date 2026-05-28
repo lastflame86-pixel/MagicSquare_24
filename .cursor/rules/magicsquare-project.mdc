@@ -1,0 +1,47 @@
+---
+description: MagicSquare 프로젝트 scope, 목표, Report 참조, oracle
+alwaysApply: true
+---
+
+# MagicSquare — Project
+
+## Identity
+
+- **Name:** MagicSquare
+- **Description:** 4×4 Magic Square — 규칙 기반 판정(검증) 우선 QA·TDD 학습 프로젝트
+- **Python:** 3.10+
+- **Primary goal:** 완전 4×4 격자에 대해 S·V·M·P 불변을 일관되게 판정
+
+## Oracle
+
+특정 16칸 배치 한 장이 아니라 **규칙 집합(S·V·M)** 으로 PASS/FAIL 판정한다.
+
+## Scope
+
+### In scope
+
+- 검증(Validator) 1차 TDD 사이클
+- IN/OUT 계약, violationIds (S/V/M/P)
+- RED-01 ~ RED-08 순차 구현
+
+### Out of scope
+
+- 생성(Generator) — G1~G3 게이트 전 금지
+- n×n 일반화, UI/CLI 본 구현, 성능 벤치마크
+
+### Separate track (not RED-01~08)
+
+- `entity/user.py` 및 `tests/unit/entity/test_user.py` — 학습용 User 엔티티
+- 마방진 격자 검증 RED와 분리; ECB entity 규칙은 동일 적용
+
+## References
+
+| Document | Path |
+|----------|------|
+| Problem definition | `Report/MagicSquare-Problem-Definition-Report.md` |
+| TDD design | `Report/MagicSquare-TDD-Design-Report.md` |
+| Implementation prep | `Report/MagicSquare-Implementation-Preparation-Report.md` |
+
+## Rule index
+
+디렉터리 트리·에이전트 워크플로: 루트 `.cursorrules` (`file_structure`, `ai_behavior`).

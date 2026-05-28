@@ -1,0 +1,19 @@
+---
+description: Forbidden patterns — print, bare except, test weakening, golden grids
+alwaysApply: true
+---
+
+# MagicSquare — Forbidden Patterns
+
+| Pattern | Reason | Alternative |
+|---------|--------|-------------|
+| `print(` | CI·테스트 오염, OUT 계약 우회 | `logging.getLogger(__name__)` 또는 `ValidationResult.summary` / pytest 실패 메시지 |
+| 하드코딩 마방 상수·격자 (34, 16칸 고정 배열 전역 산재) | RuleCatalog·entity에 규칙 필요 (AC-12) | `RuleCatalog.MAGIC_CONSTANT`, `GridSize.ROWS`, `entity/constants` |
+| `except:` | PEP 8 E722, 예외 은닉 | `except SpecificError as e:` 후 re-raise 또는 도메인 오류 변환 |
+| `except Exception: pass` | 판정 실패·입력 오류가 PASS로 이어질 수 있음 | 명시적 예외 + 로깅 + REJECTED/NA 반환 |
+| `src/` 변경 without 대응 failing test | Red 위반 | 먼저 `tests/`에 Red·pytest 실패 확인 후 `src/` 최소 구현 |
+| `assert expected == entire_fixed_16_cell_grid` | 비불변 — 유일 정답 고정 | `result == PASS` 및 규칙 ID; 유효 격자 2종 이상 |
+| `@pytest.mark.skip` / `xfail` (Red 제거 목적) | 테스트 약화 (P2·AC-10) | 구현 또는 Then 수정 (Report·AC 기준) |
+| `if not valid: return True` | P2 — 위반 시 통과 금지 | `FAIL` + `violation_ids` (V1/M1 등) |
+
+TDD 단계별 절차는 `magicsquare-tdd-testing.mdc`를 따른다. 본 파일은 **패턴·대안** 중심이다.
