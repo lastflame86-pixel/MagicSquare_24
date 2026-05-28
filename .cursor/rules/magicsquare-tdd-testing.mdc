@@ -1,0 +1,101 @@
+---
+description: Dual-track TDD Red/Green/Refactor, pytest AAA, naming, coverage
+alwaysApply: true
+---
+
+# MagicSquare — TDD & Testing
+
+## Dual track
+
+| Track | Content |
+|-------|---------|
+| **A** | Report·Prompt·AC·RED 시나리오 문장 — 코드·테스트 본문 없음 |
+| **B** | `tests/` Red → `src/` Green → Refactor |
+
+Report 수정은 사용자가 Track A를 요청할 때만.
+
+## Red phase
+
+실패하는 테스트를 먼저 작성하고, **pytest로 Red임을 확인**한 뒤에만 구현으로 넘어간다.
+
+**Rules:**
+
+- RED-ID 순서: RED-01 → RED-02 → … → RED-08 (G-02)
+- `tests/`에 Given-When-Then·AC-ID·RED-ID를 테스트명·docstring에 명시
+- 구현 전 pytest 실행 — 해당 테스트가 실패하는지 확인
+- 실패 원인은 「미구현·스텁」이어야 함; 잘못된 assert 기대는 수정
+
+**Must not:**
+
+- `src/` 프로덕션 로직을 Red 확인 없이 추가·확장
+- 한 PR·한 턴에 RED 2건 이상 동시 Green
+- assert 완화·삭제·`@pytest.mark.skip`/`xfail`로 Red 제거
+- 다음 RED(M/V) 규칙을 현재 RED보다 먼저 구현
+
+## Green phase
+
+현재 Red **1건**을 통과시키는 **최소 코드**만 `src/`에 추가한다.
+
+**Rules:**
+
+- `MagicSquareValidator`, `GridInput` 등 — 현재 RED에 필요한 최소 분기만
+- OUT 계약: `result`, `violation_ids`(필수 시), `summary`
+- pytest로 해당 RED + 기존 P0 회귀 통과 확인
+- 문서 §8.3 허용 부채만: 유효 격자 1종, 최초 위반 ID 1개, 고정 요약 문자열
+
+**Must not:**
+
+- 리팩터링·공통 추출·이름 일괄 변경·RuleCatalog 일원화
+- 다른 RED·전체 M1~M4·Generator 한 번에 구현
+- PASS/FAIL/NOT_APPLICABLE 의미 변경
+- 테스트 기대값을 구현에 맞게 약화
+
+## Refactor phase
+
+동작·AC·테스트 기대는 그대로 두고 **구조만** 개선한다.
+
+**Rules:**
+
+- 현재 RED Green + P0 회귀 통과 후에만 시작
+- 중복 제거, RuleCatalog 일원화, S→V→M 순서 통합 테스트 고정
+- Refactor 전후 pytest 동일 통과 (P0 최소)
+- 커버리지 80% 목표 유지·하락 시 테스트 추가 후 Refactor
+
+**Must not:**
+
+- 기능 추가·새 RED 선행 구현
+- 관측 가능 동작·violation ID 의미 변경
+- 실패 테스트 삭제·xfail 남용
+- Green 단계에서 미뤄둔 리팩터를 Red 없이 대량 수행
+
+## pytest
+
+- **Pattern:** AAA (Arrange-Act-Assert) — 빈 줄 또는 주석으로 세 구역 구분
+- **Coverage:** 80% 목표 (RED 1건만 있을 때 신규 모듈 미달 가능 — RED 누적 시 점진 충족)
+
+### Fixture scope
+
+| Scope | Use |
+|-------|-----|
+| function | 격자·ValidationResult 등 테스트별 독립 (기본) |
+| class | 동일 클래스 내만 공유 |
+| module | 파일 단위 read-only 상수 |
+| session | 금지에 가깝게 — mutable 공유 금지 |
+
+- `tests/conftest.py` — 공통 픽스처·RED-ID 헬퍼
+- `tests/fixtures/grids/` — JSON 격자 (`red01_input_3x4.json` 등)
+
+### Naming
+
+- **Files:** `test_<REDID>_<rule>_<behavior>.py`
+- **Functions:** `test_` 접두사 — 예: `test_RED01_given_3x4_when_parse_then_rejected_with_S1`
+- **Classes:** `Test<Component>` 선택 — 메서드는 `test_` 유지
+
+### Layout
+
+- `tests/unit/` — unit
+- `tests/integration/` — integration
+
+### Assert style
+
+`result`·`violation_ids`를 명시적으로 검증. **골든 16칸 배열 전체 일치 금지** (비불변).
