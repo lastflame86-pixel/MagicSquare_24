@@ -9,11 +9,21 @@ from unittest.mock import Mock
 
 import pytest
 
-from magicsquare.boundary.error_mapper import E006_CODE, E006_MESSAGE
+from magicsquare.boundary.error_mapper import (
+    E006_CODE,
+    E006_MESSAGE,
+    E007_CODE,
+    E007_MESSAGE,
+    map_domain_exception,
+)
 from magicsquare.boundary.error_schema import FailureResponse, SuccessResponse
 from magicsquare.boundary.ui_boundary import UIBoundary
 from magicsquare.control.solve_partial_magic_square import SolvePartialMagicSquare
-from magicsquare.entity.exceptions import UnsolvableDomainError
+from magicsquare.entity.exceptions import (
+    InvalidGridStateError,
+    InvalidNumberSetError,
+    UnsolvableDomainError,
+)
 from tests.entity.conftest import G1_GRID, G3_GRID
 
 G1_EXPECTED = [2, 2, 10, 3, 3, 7]
@@ -125,3 +135,50 @@ class TestUOUT03DomainErrorMapping:
         # Then
         assert isinstance(result, FailureResponse)
         assert result.error.code == E006_CODE
+
+    def test_u_out_03_invalid_grid_state_maps_to_e007(self) -> None:
+        """Given InvalidGridStateError — When map_domain_exception — Then E007."""
+        # U-OUT-03 — ErrorMapper E007 isolation
+        # Given
+        exc = InvalidGridStateError("blank count not two")
+
+        # When
+        result = map_domain_exception(exc)
+
+        # Then
+        assert isinstance(result, FailureResponse)
+        assert result.type == "ERROR"
+        assert result.error.code == E007_CODE
+        assert result.error.message == E007_MESSAGE
+
+    def test_u_out_03_invalid_number_set_maps_to_e007(self) -> None:
+        """Given InvalidNumberSetError — When map_domain_exception — Then E007."""
+        # U-OUT-03 — ErrorMapper E007 isolation
+        # Given
+        exc = InvalidNumberSetError("present set invalid")
+
+        # When
+        result = map_domain_exception(exc)
+
+        # Then
+        assert isinstance(result, FailureResponse)
+        assert result.error.code == E007_CODE
+        assert result.error.message == E007_MESSAGE
+
+    def test_u_out_03_mock_invalid_grid_state_via_boundary_maps_to_e007(
+        self, ui_boundary_with_mock_resolve: tuple[UIBoundary, Mock]
+    ) -> None:
+        """Given mock resolve raising InvalidGridStateError — When solve — Then E007."""
+        # U-OUT-03 — UIBoundary → ErrorMapper E007 path
+        # Given
+        boundary, mock_resolve = ui_boundary_with_mock_resolve
+        mock_resolve.side_effect = InvalidGridStateError("blank count not two")
+        grid = [row[:] for row in G1_GRID]
+
+        # When
+        result = boundary.solve(grid)
+
+        # Then
+        assert isinstance(result, FailureResponse)
+        assert result.error.code == E007_CODE
+        assert result.error.message == E007_MESSAGE
