@@ -9,7 +9,17 @@ from unittest.mock import Mock
 
 import pytest
 
+from magicsquare.boundary.error_schema import SuccessResponse
 from magicsquare.boundary.ui_boundary import UIBoundary
+from magicsquare.control.solve_partial_magic_square import SolvePartialMagicSquare
+
+# PRD §16.4 — G1 (Step A)
+G1_GRID: list[list[int]] = [
+    [16, 3, 2, 13],
+    [5, 0, 11, 8],
+    [9, 6, 0, 12],
+    [4, 15, 14, 1],
+]
 
 
 @pytest.fixture
@@ -19,6 +29,27 @@ def ui_boundary_with_mock_execute() -> tuple[UIBoundary, Mock]:
     mock_solver = Mock(execute=mock_execute)
     boundary = UIBoundary(solver=mock_solver)
     return boundary, mock_execute
+
+
+class TestSuccessOutputContract:
+    """U-OUT-01 — Success envelope (AC-FR05-04, AC-FR05-07, BR-20)."""
+
+    def test_u_out_01_success_returns_int_six_tuple(self) -> None:
+        """Given G1 — When solve — Then type OK, data int[6], no error field."""
+        # U-OUT-01
+        # Given
+        boundary = UIBoundary(solver=SolvePartialMagicSquare())
+        grid = [row[:] for row in G1_GRID]
+
+        # When
+        result = boundary.solve(grid)
+
+        # Then
+        assert isinstance(result, SuccessResponse)
+        assert result.type == "OK"
+        assert result.data == [2, 2, 7, 3, 3, 10]
+        assert len(result.data) == 6
+        assert "error" not in SuccessResponse.model_fields
 
 
 class TestUOUT01SuccessDataLength:

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from magicsquare.boundary.error_schema import FailureResponse
-from magicsquare.boundary.input_validator import InputValidator
+from magicsquare.boundary.error_schema import FailureResponse, SuccessResponse
+from magicsquare.boundary.input_validator import InputValidator, ValidationOutcome
 
 
 class UIBoundary:
@@ -16,9 +16,10 @@ class UIBoundary:
         self._solver = solver
         self._validator = InputValidator()
 
-    def solve(self, grid: list[list[int]] | None) -> FailureResponse | Any:
-        """Validate grid; call resolve only when validation passes."""
-        try:
-            return self._validator.validate(grid)
-        except NotImplementedError:
-            return self._solver.resolve(grid)
+    def solve(self, grid: list[list[int]] | None) -> FailureResponse | SuccessResponse:
+        """Validate grid; return Success or Failure envelope."""
+        outcome: ValidationOutcome = self._validator.validate(grid)
+        if isinstance(outcome, FailureResponse):
+            return outcome
+        data = self._solver.resolve(grid)
+        return SuccessResponse(data=data)

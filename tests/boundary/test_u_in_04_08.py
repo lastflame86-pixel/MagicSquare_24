@@ -7,13 +7,42 @@ from __future__ import annotations
 
 import pytest
 
+from magicsquare.boundary.error_schema import FailureResponse, ValidationSuccess
 from magicsquare.boundary.input_validator import InputValidator
+
+# Report/02 · PRD §16.4 — G1 Given (Step A, exactly two zeros)
+G1_GRID: list[list[int]] = [
+    [16, 3, 2, 13],
+    [5, 0, 11, 8],
+    [9, 6, 0, 12],
+    [4, 15, 14, 1],
+]
 
 
 @pytest.fixture
 def input_validator() -> InputValidator:
     """Provide InputValidator for Arrange sections."""
     return InputValidator()
+
+
+class TestG1GivenPassesValidation:
+    """G1 Given — canonical grid passes FR-01 (AC-FR01-07 prep)."""
+
+    def test_g1_given_validate_returns_ok_not_failure(
+        self, input_validator: InputValidator
+    ) -> None:
+        """Given G1 — When validate — Then ValidationSuccess (not FailureResponse)."""
+        # AC-FR-01-07 prep — G1 Given
+        # Given
+        grid = [row[:] for row in G1_GRID]
+
+        # When
+        result = input_validator.validate(grid)
+
+        # Then
+        assert isinstance(result, ValidationSuccess)
+        assert result.type == "OK"
+        assert not isinstance(result, FailureResponse)
 
 
 class TestUIN04EmptyCellCount:

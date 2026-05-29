@@ -13,16 +13,17 @@ from magicsquare.control.two_cell_solver import solution
 class TestDSOL01G1StepA:
     """D-SOL-01 — G1 Step A success → int[6]."""
 
-    def test_d_sol_01_g1_solution_step_a_int_six(self) -> None:
+    def test_d_sol_01_g1_solution_step_a_int_six(self, g1_grid: list[list[int]]) -> None:
         """Given G1 — When solution — Then [2,2,7,3,3,10] 1-index coords."""
+        # D-SOL-01
         # Given
-        # grid = G1_GRID
+        grid = g1_grid
+
         # When
-        # data = solution(grid)
-        # Then — data == [2, 2, 7, 3, 3, 10]
-        pytest.fail(
-            "RED: D-SOL-01 — G1 Step A → [2,2,7,3,3,10] (I8, AC-FR05-01)"
-        )
+        data = solution(grid)
+
+        # Then
+        assert data == [2, 2, 7, 3, 3, 10]
 
 
 class TestDSOL02G2StepB:
@@ -30,10 +31,6 @@ class TestDSOL02G2StepB:
 
     def test_d_sol_02_g2_solution_step_b_reverse(self) -> None:
         """Given G2 — When solution — Then [3,3,6,4,4,1]."""
-        # Given
-        # grid = G2_GRID  # PRD §16.4 — confirm in GREEN
-        # When
-        # data = solution(grid)
         pytest.fail("RED: D-SOL-02 — G2 TBD")
 
 
@@ -42,11 +39,6 @@ class TestDSOL03G3Unsolvable:
 
     def test_d_sol_03_g3_solution_raises_unsolvable(self) -> None:
         """Given G3 — When solution — Then UnsolvableDomainError."""
-        # Given
-        # grid = G3_GRID
-        # When / Then
-        # with pytest.raises(UnsolvableDomainError):
-        #     solution(grid)
         pytest.fail(
             "RED: D-SOL-03 — G3 → UnsolvableDomainError (I10, AC-FR05-03)"
         )
@@ -57,11 +49,6 @@ class TestDSOL04NumberSetContract:
 
     def test_d_sol_04_g1_solution_numbers_match_missing_pair(self) -> None:
         """Given G1 — When solution — Then {n1,n2} == {smaller,larger}."""
-        # Given
-        # grid = G1_GRID
-        # When
-        # data = solution(grid)
-        # Then — {data[2], data[5]} == {7, 10}
         pytest.fail(
             "RED: D-SOL-04 — G1 solution n1,n2 equal missing pair {7,10} (AC-FR05-06)"
         )
