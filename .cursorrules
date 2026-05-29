@@ -1,0 +1,130 @@
+################################################################################
+# MagicSquare — 규칙 인덱스
+# 상세 규칙의 단일 진실 원천(SoT): .cursor/rules/magicsquare-*.mdc
+# 본 파일: 인덱스 · 디렉터리 계약(file_structure) · 에이전트 워크플로(ai_behavior)
+################################################################################
+
+index:
+  project: MagicSquare
+  description: "4x4 Magic Square — 규칙 기반 판정(검증) 우선 QA·TDD 학습"
+  rules_source: .cursor/rules/
+  rules_files:
+    - magicsquare-project.mdc          # scope, references, oracle, User 트랙
+    - magicsquare-python-code-style.mdc
+    - magicsquare-ecb-architecture.mdc
+    - magicsquare-tdd-testing.mdc      # dual-track TDD + pytest
+    - magicsquare-forbidden.mdc
+  references:
+    problem_definition: Report/MagicSquare-Problem-Definition-Report.md
+    tdd_design: Report/MagicSquare-TDD-Design-Report.md
+    implementation_prep: Report/MagicSquare-Implementation-Preparation-Report.md
+  track_guidance:
+    track_a: "Report·Prompt·AC·RED 시나리오 — 사용자 요청 시만 수정"
+    track_b: "tests/ Red → src/ Green → Refactor — 기본 작업 트랙"
+  before_any_change: "TDD Design Report의 현재 RED-ID·AC 확인; 규칙 상세는 위 .mdc 참조"
+
+################################################################################
+file_structure:
+  tree: |
+    MagicSquare/
+    ├── .cursorrules                       # 인덱스 · file_structure · ai_behavior
+    ├── README.md
+    ├── .gitignore
+    ├── pyproject.toml
+    ├── .cursor/
+    │   ├── agents/                        # 역할별 서브에이전트 프롬프트
+    │   │   ├── ai-integration-expert.md
+    │   │   ├── backend-developer.md
+    │   │   ├── backup-report-github-manager.md
+    │   │   ├── frontend-developer.md
+    │   │   ├── product-planning-manager.md
+    │   │   ├── quality-assurance-engineer.md
+    │   │   ├── system-optimization-engineer.md
+    │   │   └── ux-design-advisor.md
+    │   └── rules/
+    │       ├── magicsquare-project.mdc
+    │       ├── magicsquare-python-code-style.mdc
+    │       ├── magicsquare-ecb-architecture.mdc
+    │       ├── magicsquare-tdd-testing.mdc
+    │       └── magicsquare-forbidden.mdc
+    ├── docs/                              # QA·PRD·결함 (Track A 보조)
+    │   ├── PRD_MagicSquare.md
+    │   ├── test_plan.md
+    │   └── defect_list.md
+    ├── Report/                            # Track A — 세션·설계 리포트 (코드 없음)
+    │   ├── MagicSquare-Problem-Definition-Report.md
+    │   ├── MagicSquare-TDD-Design-Report.md
+    │   ├── MagicSquare-Implementation-Preparation-Report.md
+    │   ├── MagicSquare-User-Entity-Report.md
+    │   ├── MagicSquare-Level1-5-Planning-Verification-Report.md
+    │   ├── 01.Agent-Setup-Session_Report.md
+    │   ├── 02.MagicSquare-PRD-Session_Report.md
+    │   ├── 03.MagicSquare-README-TDD-Start-Session_Report.md
+    │   └── 04.MagicSquare-AC-FR01-01-DualTrack-TDD-Session_Report.md
+    ├── Prompt/                            # Track A — 세션·설계 프롬프트
+    │   ├── MagicSquare-Problem-Definition-Prompt.md
+    │   ├── MagicSquare-TDD-Design-Prompt.md
+    │   ├── MagicSquare-Implementation-Session-Prompt.md
+    │   ├── MagicSquare-Track-AB-Phase-Integration-Prompt.md
+    │   ├── 01.Agent-Setup-Session_Prompt.md
+    │   ├── 02.MagicSquare-PRD-Session_Prompt.md
+    │   ├── 03.MagicSquare-Dev-Todo-Board.md
+    │   └── … (Turn·README·AC-FR01-01 등 세션 산출물)
+    ├── src/
+    │   └── magicsquare/
+    │       ├── __init__.py
+    │       ├── entity/                    # ECB — 도메인 (현재 User 학습용)
+    │       │   ├── __init__.py
+    │       │   └── user.py
+    │       └── boundary/                  # ECB — 입출력·IN 검증 (AC-FR01-01)
+    │           ├── __init__.py
+    │           ├── error_schema.py
+    │           ├── input_validator.py
+    │           └── ui_boundary.py
+    └── tests/                             # Track B — ECB 미러 (unit/ 접두 없음)
+        ├── __init__.py
+        ├── conftest.py
+        ├── boundary/
+        │   ├── __init__.py
+        │   └── test_RED_AC_FR01_01_null_and_size.py
+        └── entity/
+            ├── __init__.py
+            └── test_user.py
+  planned_ecb:                            # RED 누적 시 추가 예정 (아직 없음)
+    control: src/magicsquare/control/    # magic_square_validator.py
+    entity: rule_catalog.py, validation_result.py, grid.py
+    boundary: grid_input.py, validation_reporter.py
+    tests: tests/fixtures/grids/, tests/integration/control/
+  legacy_mapping:
+    note: "Implementation-Preparation-Report의 domain→entity, validation→control, input|output→boundary"
+    domain: entity/
+    validation: control/                  # 미생성 — planned_ecb 참고
+    input: boundary/input_validator.py    # 설계명 grid_input.py
+    output: boundary/validation_reporter.py  # 미생성 — error_schema·ui_boundary 현행
+
+################################################################################
+ai_behavior:
+  before_coding:
+    - "Report/MagicSquare-TDD-Design-Report.md 및 현재 RED-ID·AC 확인"
+    - ".cursor/rules/magicsquare-*.mdc 중 작업에 해당하는 규칙 적용"
+    - "수정·생성할 tests/ 파일 경로를 먼저 제시 — RED-ID와 매핑"
+    - "관련 기존 테스트·conftest·fixtures 존재 여부 확인"
+    - "Track A(Report만) vs Track B(코드) — 사용자 요청 없으면 Report 수정 안 함"
+  during_coding:
+    - "ECB 의존 방향 위반 금지 — entity는 control·boundary import 불가"
+    - "타입 힌트 없는 def 생성 금지 — -> None 포함"
+    - "public API에 Google docstring 필수"
+    - "Red: tests/만 변경 — Green: 현재 RED에 필요한 src/만 최소 추가"
+    - "TDD·forbidden 위반 감지 시 중단하고 ⚠️ TDD 위반: 또는 ⚠️ Forbidden: <항목> 출력"
+  after_coding:
+    - "pytest 실행 제안 또는 결과 요약 (가능한 경우)"
+    - "변경 파일 목록과 RED-ID·AC 링크 명시"
+    - "다음 단계: Red 확인 / Green / Refactor 중 어디인지 명시"
+  warnings_emit_when:
+    - "src/ 변경인데 대응 Red 테스트 없음"
+    - "Green 단계에서 리팩터·다중 RED 동시 처리"
+    - "forbidden 패턴(print, bare except, 테스트 약화) 감지"
+    - "NOT_APPLICABLE과 FAIL 혼용 (OUT 계약 위반)"
+  must_not_claim:
+    - "pytest·커버리지 80%를 실행하지 않고 통과를 보장했다고 단정"
+    - "사용자 대신 RED 실패를 확인했다고 거짓 보고"

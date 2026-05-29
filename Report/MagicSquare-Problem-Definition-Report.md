@@ -1,5 +1,6 @@
 # 4×4 Magic Square — 문제 인식·정의 보고서
 
+
 | 항목 | 내용 |
 |------|------|
 | **프로젝트** | MagicSquare (`DEV/MagicSquare`) |

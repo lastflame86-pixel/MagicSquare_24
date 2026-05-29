@@ -1,0 +1,29 @@
+[project]
+name = "magicsquare"
+version = "0.1.0"
+description = "4x4 Magic Square validation — QA TDD project"
+requires-python = ">=3.10"
+dependencies = [
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+gui = ["PyQt6>=6.6"]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = [
+    "golden_master: GM-2 Golden Master / approve regression (pytest -m golden_master)",
+]
+
+[tool.coverage.run]
+source = ["magicsquare"]
