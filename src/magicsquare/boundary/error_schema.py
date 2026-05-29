@@ -17,3 +17,16 @@ class FailureResponse(BaseModel):
 
     type: str = "ERROR"
     error: ErrorDetail
+
+
+class ValidationSuccess(BaseModel):
+    """FR-01 validation pass; allows Domain resolve (no error field)."""
+
+    type: str = "OK"
+
+
+class SuccessResponse(BaseModel):
+    """Boundary success envelope (AC-FR05-04, AC-FR05-07, BR-20)."""
+
+    type: str = "OK"
+    data: list[int]
