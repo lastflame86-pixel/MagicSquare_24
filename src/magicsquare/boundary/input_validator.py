@@ -26,35 +26,11 @@ E005_MESSAGE = "DUPLICATE_VALUE: non-zero values must be unique"
 ValidationOutcome = FailureResponse | ValidationSuccess
 
 
-def _invalid_size_failure() -> FailureResponse:
-    """Build PRD §8.1 INVALID_SIZE failure response."""
+def _failure(code: str, message: str) -> FailureResponse:
+    """Build a PRD FailureResponse envelope for the given error code and message."""
     return FailureResponse(
         type="ERROR",
-        error=ErrorDetail(code=INVALID_SIZE_CODE, message=INVALID_SIZE_MESSAGE),
-    )
-
-
-def _e002_failure() -> FailureResponse:
-    """Build E002 empty-cell count failure response."""
-    return FailureResponse(
-        type="ERROR",
-        error=ErrorDetail(code=E002_CODE, message=E002_MESSAGE),
-    )
-
-
-def _e004_failure() -> FailureResponse:
-    """Build E004 cell value range failure response."""
-    return FailureResponse(
-        type="ERROR",
-        error=ErrorDetail(code=E004_CODE, message=E004_MESSAGE),
-    )
-
-
-def _e005_failure() -> FailureResponse:
-    """Build E005 duplicate non-zero failure response."""
-    return FailureResponse(
-        type="ERROR",
-        error=ErrorDetail(code=E005_CODE, message=E005_MESSAGE),
+        error=ErrorDetail(code=code, message=message),
     )
 
 
@@ -75,12 +51,12 @@ def _fr01_rule_failure(matrix: list[list[int]]) -> FailureResponse | None:
                 empty_count += 1
                 continue
             if value < CELL_MIN or value > CELL_MAX:
-                return _e004_failure()
+                return _failure(E004_CODE, E004_MESSAGE)
             non_zero_values.append(value)
     if empty_count != EXPECTED_EMPTY_CELLS:
-        return _e002_failure()
+        return _failure(E002_CODE, E002_MESSAGE)
     if len(non_zero_values) != len(set(non_zero_values)):
-        return _e005_failure()
+        return _failure(E005_CODE, E005_MESSAGE)
     return None
 
 
@@ -90,9 +66,9 @@ class InputValidator:
     def validate(self, matrix: list[list[int]] | None) -> ValidationOutcome:
         """Validate grid; return FailureResponse or ValidationSuccess."""
         if matrix is None:
-            return _invalid_size_failure()
+            return _failure(INVALID_SIZE_CODE, INVALID_SIZE_MESSAGE)
         if not _is_4x4(matrix):
-            return _invalid_size_failure()
+            return _failure(INVALID_SIZE_CODE, INVALID_SIZE_MESSAGE)
         rule_failure = _fr01_rule_failure(matrix)
         if rule_failure is not None:
             return rule_failure

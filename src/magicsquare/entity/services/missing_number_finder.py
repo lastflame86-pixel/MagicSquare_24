@@ -5,7 +5,7 @@ from __future__ import annotations
 from magicsquare.entity.constants import CELL_MAX, CELL_MIN, EXPECTED_EMPTY_CELLS
 from magicsquare.entity.exceptions import InvalidNumberSetError
 
-Grid = list[list[int]]
+from magicsquare.entity.value_objects.grid import Grid
 
 
 def find_not_exist_nums(grid: Grid) -> tuple[int, int]:
