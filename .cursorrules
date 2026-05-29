@@ -28,51 +28,79 @@ file_structure:
   tree: |
     MagicSquare/
     ├── .cursorrules                       # 인덱스 · file_structure · ai_behavior
+    ├── README.md
+    ├── .gitignore
+    ├── pyproject.toml
     ├── .cursor/
+    │   ├── agents/                        # 역할별 서브에이전트 프롬프트
+    │   │   ├── ai-integration-expert.md
+    │   │   ├── backend-developer.md
+    │   │   ├── backup-report-github-manager.md
+    │   │   ├── frontend-developer.md
+    │   │   ├── product-planning-manager.md
+    │   │   ├── quality-assurance-engineer.md
+    │   │   ├── system-optimization-engineer.md
+    │   │   └── ux-design-advisor.md
     │   └── rules/
     │       ├── magicsquare-project.mdc
     │       ├── magicsquare-python-code-style.mdc
     │       ├── magicsquare-ecb-architecture.mdc
     │       ├── magicsquare-tdd-testing.mdc
     │       └── magicsquare-forbidden.mdc
-    ├── Report/                            # Track A — 설계·AC (코드 없음)
-    ├── Prompt/
-    ├── pyproject.toml
+    ├── docs/                              # QA·PRD·결함 (Track A 보조)
+    │   ├── PRD_MagicSquare.md
+    │   ├── test_plan.md
+    │   └── defect_list.md
+    ├── Report/                            # Track A — 세션·설계 리포트 (코드 없음)
+    │   ├── MagicSquare-Problem-Definition-Report.md
+    │   ├── MagicSquare-TDD-Design-Report.md
+    │   ├── MagicSquare-Implementation-Preparation-Report.md
+    │   ├── MagicSquare-User-Entity-Report.md
+    │   ├── MagicSquare-Level1-5-Planning-Verification-Report.md
+    │   ├── 01.Agent-Setup-Session_Report.md
+    │   ├── 02.MagicSquare-PRD-Session_Report.md
+    │   ├── 03.MagicSquare-README-TDD-Start-Session_Report.md
+    │   └── 04.MagicSquare-AC-FR01-01-DualTrack-TDD-Session_Report.md
+    ├── Prompt/                            # Track A — 세션·설계 프롬프트
+    │   ├── MagicSquare-Problem-Definition-Prompt.md
+    │   ├── MagicSquare-TDD-Design-Prompt.md
+    │   ├── MagicSquare-Implementation-Session-Prompt.md
+    │   ├── MagicSquare-Track-AB-Phase-Integration-Prompt.md
+    │   ├── 01.Agent-Setup-Session_Prompt.md
+    │   ├── 02.MagicSquare-PRD-Session_Prompt.md
+    │   ├── 03.MagicSquare-Dev-Todo-Board.md
+    │   └── … (Turn·README·AC-FR01-01 등 세션 산출물)
     ├── src/
     │   └── magicsquare/
     │       ├── __init__.py
-    │       ├── entity/                    # ECB — 도메인·규칙
+    │       ├── entity/                    # ECB — 도메인 (현재 User 학습용)
     │       │   ├── __init__.py
-    │       │   ├── rule_catalog.py
-    │       │   ├── validation_result.py
-    │       │   ├── grid.py                # 격자 값 객체 (선택)
-    │       │   └── user.py                # 학습용 User (RED 트랙과 분리)
-    │       ├── control/                   # ECB — 판정 유스케이스
-    │       │   ├── __init__.py
-    │       │   └── magic_square_validator.py
-    │       └── boundary/                  # ECB — 입출력
+    │       │   └── user.py
+    │       └── boundary/                  # ECB — 입출력·IN 검증 (AC-FR01-01)
     │           ├── __init__.py
-    │           ├── grid_input.py          # IN-01~06
-    │           └── validation_reporter.py # OUT-01~04
-    └── tests/
+    │           ├── error_schema.py
+    │           ├── input_validator.py
+    │           └── ui_boundary.py
+    └── tests/                             # Track B — ECB 미러 (unit/ 접두 없음)
+        ├── __init__.py
         ├── conftest.py
-        ├── fixtures/
-        │   └── grids/
-        │       └── red01_input_3x4.json
-        ├── unit/
-        │   ├── boundary/
-        │   │   └── test_RED01_S1_non_4x4_dimensions.py
-        │   ├── control/
-        │   └── entity/
-        │       └── test_user.py
-        └── integration/
-            └── control/
+        ├── boundary/
+        │   ├── __init__.py
+        │   └── test_RED_AC_FR01_01_null_and_size.py
+        └── entity/
+            ├── __init__.py
+            └── test_user.py
+  planned_ecb:                            # RED 누적 시 추가 예정 (아직 없음)
+    control: src/magicsquare/control/    # magic_square_validator.py
+    entity: rule_catalog.py, validation_result.py, grid.py
+    boundary: grid_input.py, validation_reporter.py
+    tests: tests/fixtures/grids/, tests/integration/control/
   legacy_mapping:
     note: "Implementation-Preparation-Report의 domain→entity, validation→control, input|output→boundary"
     domain: entity/
-    validation: control/
-    input: boundary/grid_input.py
-    output: boundary/validation_reporter.py
+    validation: control/                  # 미생성 — planned_ecb 참고
+    input: boundary/input_validator.py    # 설계명 grid_input.py
+    output: boundary/validation_reporter.py  # 미생성 — error_schema·ui_boundary 현행
 
 ################################################################################
 ai_behavior:
