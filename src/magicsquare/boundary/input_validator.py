@@ -7,9 +7,21 @@ from magicsquare.boundary.error_schema import (
     FailureResponse,
     ValidationSuccess,
 )
+from magicsquare.entity.constants import (
+    CELL_MAX,
+    CELL_MIN,
+    EXPECTED_EMPTY_CELLS,
+    GRID_SIZE,
+)
 
 INVALID_SIZE_CODE = "INVALID_SIZE"
 INVALID_SIZE_MESSAGE = "Grid must be 4x4."
+E002_CODE = "E002"
+E002_MESSAGE = "INVALID_EMPTY_COUNT: expected exactly 2 empty cells (0)"
+E004_CODE = "E004"
+E004_MESSAGE = "INVALID_CELL_VALUE: each cell must be 0 or 1..16"
+E005_CODE = "E005"
+E005_MESSAGE = "DUPLICATE_VALUE: non-zero values must be unique"
 
 ValidationOutcome = FailureResponse | ValidationSuccess
 
@@ -22,15 +34,39 @@ def _invalid_size_failure() -> FailureResponse:
     )
 
 
+def _e002_failure() -> FailureResponse:
+    """Build E002 empty-cell count failure response."""
+    return FailureResponse(
+        type="ERROR",
+        error=ErrorDetail(code=E002_CODE, message=E002_MESSAGE),
+    )
+
+
+def _e004_failure() -> FailureResponse:
+    """Build E004 cell value range failure response."""
+    return FailureResponse(
+        type="ERROR",
+        error=ErrorDetail(code=E004_CODE, message=E004_MESSAGE),
+    )
+
+
+def _e005_failure() -> FailureResponse:
+    """Build E005 duplicate non-zero failure response."""
+    return FailureResponse(
+        type="ERROR",
+        error=ErrorDetail(code=E005_CODE, message=E005_MESSAGE),
+    )
+
+
 def _is_4x4(matrix: list[list[int]]) -> bool:
     """Return True when matrix has exactly four rows of four columns."""
-    if len(matrix) != 4:
+    if len(matrix) != GRID_SIZE:
         return False
-    return all(len(row) == 4 for row in matrix)
+    return all(len(row) == GRID_SIZE for row in matrix)
 
 
-def _passes_fr01_rules(matrix: list[list[int]]) -> bool:
-    """Return True when matrix satisfies FR-01 rules 3~5 (size already checked)."""
+def _fr01_rule_failure(matrix: list[list[int]]) -> FailureResponse | None:
+    """Return FailureResponse when FR-01 rules 3~5 fail; None when all pass."""
     empty_count = 0
     non_zero_values: list[int] = []
     for row in matrix:
@@ -38,12 +74,14 @@ def _passes_fr01_rules(matrix: list[list[int]]) -> bool:
             if value == 0:
                 empty_count += 1
                 continue
-            if value < 1 or value > 16:
-                return False
+            if value < CELL_MIN or value > CELL_MAX:
+                return _e004_failure()
             non_zero_values.append(value)
-    if empty_count != 2:
-        return False
-    return len(non_zero_values) == len(set(non_zero_values))
+    if empty_count != EXPECTED_EMPTY_CELLS:
+        return _e002_failure()
+    if len(non_zero_values) != len(set(non_zero_values)):
+        return _e005_failure()
+    return None
 
 
 class InputValidator:
@@ -55,8 +93,7 @@ class InputValidator:
             return _invalid_size_failure()
         if not _is_4x4(matrix):
             return _invalid_size_failure()
-        if _passes_fr01_rules(matrix):
-            return ValidationSuccess()
-        raise NotImplementedError(
-            "AC-FR-01-04~06 scope: rule failure responses not implemented"
-        )
+        rule_failure = _fr01_rule_failure(matrix)
+        if rule_failure is not None:
+            return rule_failure
+        return ValidationSuccess()

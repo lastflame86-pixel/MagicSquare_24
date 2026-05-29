@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from magicsquare.entity.constants import GRID_SIZE
+from magicsquare.entity.constants import EXPECTED_EMPTY_CELLS, GRID_SIZE
+from magicsquare.entity.exceptions import InvalidGridStateError
 from magicsquare.entity.value_objects.cell_coordinate import CellCoordinate
 
 Grid = list[list[int]]
@@ -15,5 +16,8 @@ def find_blank_coords(grid: Grid) -> tuple[CellCoordinate, CellCoordinate]:
         for col_index in range(GRID_SIZE):
             if grid[row_index][col_index] == 0:
                 blanks.append(CellCoordinate(row_index + 1, col_index + 1))
-    first, second = blanks[0], blanks[1]
-    return first, second
+    if len(blanks) != EXPECTED_EMPTY_CELLS:
+        raise InvalidGridStateError(
+            f"expected exactly {EXPECTED_EMPTY_CELLS} empty cells, found {len(blanks)}"
+        )
+    return blanks[0], blanks[1]

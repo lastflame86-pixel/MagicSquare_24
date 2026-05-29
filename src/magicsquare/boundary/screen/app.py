@@ -84,11 +84,7 @@ class MagicSquareMainWindow:
     def _on_solve_clicked(self) -> None:
         """Call UIBoundary.solve and display Success or Failure on the label."""
         grid = self._read_grid()
-        try:
-            result = self._boundary.solve(grid)
-        except NotImplementedError as exc:
-            self._result_label.setText(_format_failure(str(exc)))
-            return
+        result = self._boundary.solve(grid)
 
         if isinstance(result, SuccessResponse):
             self._result_label.setText(_format_success(result.data))

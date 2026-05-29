@@ -41,7 +41,7 @@ def g0_grid() -> list[list[int]]:
 
 @pytest.fixture
 def g1_grid() -> list[list[int]]:
-    """Partial grid — Step A success (two zeros)."""
+    """Partial grid — FR-05 Step B success for G1 (two zeros)."""
     return [row[:] for row in G1_GRID]
 
 
