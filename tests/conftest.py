@@ -6,6 +6,24 @@ import pytest
 
 from magicsquare.entity.user import User, UserRole
 
+
+def pytest_addoption(parser: pytest.Parser) -> None:
+    """Register Golden Master approve flags."""
+    parser.addoption(
+        "--update-golden",
+        action="store_true",
+        default=False,
+        help="Regenerate tests/golden_master_expected.txt from current output",
+    )
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    """Register custom markers (also declared in pyproject.toml)."""
+    config.addinivalue_line(
+        "markers",
+        "golden_master: GM-2 Golden Master approve regression",
+    )
+
 # --- G0~G3 grid placeholders (PRD §16.4, Report/05) — RED skeleton only ---
 # See tests/entity/conftest.py for full matrix literals when Track B Arrange is enabled.
 # G0: complete 4x4 magic square (0 empty cells)

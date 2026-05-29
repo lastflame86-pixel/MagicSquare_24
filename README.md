@@ -134,6 +134,41 @@ MagicSquare/
 
 ---
 
+## Golden Master 회귀 안전장치
+
+> Refactoring 시작 전 구축. GREEN 완료 후 즉시 적용.
+
+### 기준 파일 생성
+
+- [x] **GM-01:** `tests/golden_master_expected.txt` 생성
+- [x] **GM-02:** 정상/역순/오류 시나리오 추가 (`normal_success`, `reverse_success`, `invalid_blank_count`, `duplicate_number`, `no_valid_magic_square`)
+- [x] **GM-03:** `git add tests/golden_master_expected.txt` (버전 관리 포함)
+
+### 테스트 코드
+
+- [x] **GM-04:** `tests/test_golden_master_magic_square.py` 작성
+- [x] **GM-05:** approve 패턴 적용 (기준 없으면 생성 · 있으면 `expected` vs `actual` 비교 · 불일치 시 unified diff)
+- [x] **GM-06:** Golden Master 테스트 PASS 확인 (`pytest -m golden_master -v`)
+
+### 회귀 보호
+
+- [x] **GM-07:** row-major 규칙 보호 (빈칸 좌표 = row-major 첫·둘째 `0`)
+- [x] **GM-08:** 1-index 출력 보호 (`int[6]` 좌표 `1..4`)
+- [x] **GM-09:** reverse 조합 fallback 보호 (Step A 실패 → Step B 성공, G1/G2)
+- [x] **GM-10:** Error Contract 보호 (`INVALID_BLANK_COUNT`, `DUPLICATE_NUMBER`, `NO_VALID_MAGIC_SQUARE`)
+
+**실행**
+
+```bash
+pytest -m golden_master -v
+python scripts/generate_golden_master_expected.py   # 기준 갱신
+pytest -m golden_master --update-golden -v          # approve 갱신 후 회귀
+```
+
+**참고:** approve 패턴·섹션 형식 — `tests/docs/Golden-Master-Approve-Pattern.md`
+
+---
+
 ## 권장 진행 순서
 
 ```
