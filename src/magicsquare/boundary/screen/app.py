@@ -2,28 +2,20 @@
 
 from __future__ import annotations
 
-import argparse
 import sys
 from typing import TYPE_CHECKING
 
 from magicsquare.boundary.error_schema import FailureResponse, SuccessResponse
+from magicsquare.boundary.screen.composition import create_default_boundary
 from magicsquare.boundary.ui_boundary import UIBoundary
-from magicsquare.control.solve_partial_magic_square import SolvePartialMagicSquare
+from magicsquare.entity.constants import CELL_MAX, GRID_SIZE
+from magicsquare.entity.demo_grids import G1_GRID
 
 if TYPE_CHECKING:
-    from PyQt6.QtWidgets import QApplication, QGridLayout, QLabel, QMainWindow, QPushButton, QSpinBox, QWidget
-
-# PRD §16.4 / Report/02 — G1 default grid (0-index)
-G1_GRID: list[list[int]] = [
-    [16, 3, 2, 13],
-    [5, 0, 11, 8],
-    [9, 6, 0, 12],
-    [4, 15, 14, 1],
-]
+    from PyQt6.QtWidgets import QGridLayout, QLabel, QMainWindow, QPushButton, QSpinBox, QWidget
 
 WINDOW_TITLE = "Magic Square 4x4"
-CELL_MIN = 0
-CELL_MAX = 16
+SCREEN_CELL_MIN = 0
 
 
 def _format_success(data: list[int]) -> str:
@@ -44,7 +36,7 @@ class MagicSquareMainWindow:
         """Build UI; inject UIBoundary at composition root."""
         from PyQt6.QtWidgets import QGridLayout, QLabel, QMainWindow, QPushButton, QSpinBox, QVBoxLayout, QWidget
 
-        self._boundary = boundary or UIBoundary(solver=SolvePartialMagicSquare())
+        self._boundary = boundary or create_default_boundary()
         self._spinboxes: list[list[QSpinBox]] = []
 
         self._window = QMainWindow()
@@ -55,11 +47,11 @@ class MagicSquareMainWindow:
         layout = QVBoxLayout(central)
 
         grid_layout = QGridLayout()
-        for row_index in range(4):
+        for row_index in range(GRID_SIZE):
             row_boxes: list[QSpinBox] = []
-            for col_index in range(4):
+            for col_index in range(GRID_SIZE):
                 spin = QSpinBox()
-                spin.setRange(CELL_MIN, CELL_MAX)
+                spin.setRange(SCREEN_CELL_MIN, CELL_MAX)
                 spin.setValue(G1_GRID[row_index][col_index])
                 grid_layout.addWidget(spin, row_index, col_index)
                 row_boxes.append(spin)
@@ -101,7 +93,7 @@ class MagicSquareMainWindow:
 
 def run_verify_diagnostic(boundary: UIBoundary | None = None) -> str:
     """Diagnostic: UIBoundary.solve(None) — not the main UI."""
-    ui = boundary or UIBoundary(solver=SolvePartialMagicSquare())
+    ui = boundary or create_default_boundary()
     result = ui.solve(None)
     if isinstance(result, FailureResponse):
         return _format_failure(result.error.message)
@@ -109,26 +101,10 @@ def run_verify_diagnostic(boundary: UIBoundary | None = None) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Application entry point; use --verify for grid=None diagnostic only."""
-    from PyQt6.QtWidgets import QApplication
+    """Delegate to screen CLI module (RF-08)."""
+    from magicsquare.boundary.screen.cli import main as cli_main
 
-    parser = argparse.ArgumentParser(description="Magic Square 4x4 screen")
-    parser.add_argument(
-        "--verify",
-        action="store_true",
-        help="Run grid=None diagnostic (not the main UI)",
-    )
-    args = parser.parse_args(argv)
-
-    app = QApplication(sys.argv if argv is None else argv)
-
-    if args.verify:
-        print(run_verify_diagnostic())
-        return 0
-
-    window = MagicSquareMainWindow()
-    window.show()
-    return app.exec()
+    return cli_main(argv)
 
 
 if __name__ == "__main__":

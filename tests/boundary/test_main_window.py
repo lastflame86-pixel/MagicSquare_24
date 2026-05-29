@@ -18,14 +18,10 @@ pytest.importorskip("PyQt6")
 from PyQt6.QtWidgets import QApplication
 
 from magicsquare.boundary.error_schema import ErrorDetail, FailureResponse, SuccessResponse
-from magicsquare.boundary.screen.app import (
-    G1_GRID,
-    MagicSquareMainWindow,
-    main,
-    run_verify_diagnostic,
-)
+from magicsquare.boundary.screen.app import MagicSquareMainWindow, main, run_verify_diagnostic
 from magicsquare.boundary.ui_boundary import UIBoundary
 from magicsquare.control.solve_partial_magic_square import SolvePartialMagicSquare
+from magicsquare.entity.demo_grids import G1_GRID
 
 G1_EXPECTED_TEXT = "2, 2, 10, 3, 3, 7"
 INVALID_SIZE_MESSAGE = "Grid must be 4x4."
@@ -164,7 +160,7 @@ class TestMainEntryPoint:
         mock_app.exec.return_value = 0
         with (
             patch("PyQt6.QtWidgets.QApplication", return_value=mock_app),
-            patch("magicsquare.boundary.screen.app.MagicSquareMainWindow") as mock_window_cls,
+            patch("magicsquare.boundary.screen.cli.MagicSquareMainWindow") as mock_window_cls,
         ):
             # When
             exit_code = main([])

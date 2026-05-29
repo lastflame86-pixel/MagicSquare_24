@@ -2,7 +2,7 @@
 
 QA 관점에서 **4×4 마방진** 과제의 **문제 인식·정의·Dual-Track TDD 구현**을 수행하는 프로젝트입니다.
 
-**현재 단계:** STEP 1~5 완료 · PRD·테스트 플랜 · **FR-01~05 Dual-Track GREEN** · Golden Master 회귀 · **REFACTOR 진행 중** (RF-05 완료)
+**현재 단계:** STEP 1~5 완료 · PRD·테스트 플랜 · **FR-01~05 Dual-Track GREEN** · Golden Master 회귀 · **REFACTOR Wave 1~4 완료**
 
 ---
 
@@ -62,7 +62,7 @@ Entity                  entity/services/*.py, value_objects/, constants.py
 |--------|------|------|
 | **Screen** | `src/magicsquare/boundary/screen/app.py` | PyQt6 UI, composition root |
 | **Boundary** | `src/magicsquare/boundary/` | 입력 검증, Success/Failure envelope |
-| **Control** | `src/magicsquare/control/` | FR-05 오케스트레이션 (현재 Entity에 일부 잔존 — RF-04 예정) |
+| **Control** | `src/magicsquare/control/` | FR-05 오케스트레이션, `SolutionResult` SSOT |
 | **Entity** | `src/magicsquare/entity/` | 빈칸 탐색, 누락 수, 마방진 검증, 2-cell solver |
 
 ---
@@ -79,7 +79,7 @@ Entity                  entity/services/*.py, value_objects/, constants.py
 
 ---
 
-## 개발 세션 이력 (01 ~ 12)
+## 개발 세션 이력 (01 ~ 13)
 
 | # | 세션 | TDD phase | 핵심 산출 |
 |---|------|-----------|-----------|
@@ -95,6 +95,7 @@ Entity                  entity/services/*.py, value_objects/, constants.py
 | 10 | REFACTOR Program RF-05 | REFACTOR | `_failure()` SSOT 통합 (C5) |
 | 11 | QA Coverage Analysis | Ask | Dual-Track 커버리지 실측, NFR gate |
 | 12 | NFR Coverage Gate GREEN | GREEN | G-05 Screen headless, E007, NFR gate 충족 |
+| 13 | REFACTOR Wave 1~4 Complete | REFACTOR | G-04, RF-03~08, R-L/R-U, 68 pytest |
 
 세션별 상세: [Report/](Report/) 디렉터리 · 대화 재현: [Prompt/](Prompt/) Transcript Export
 
@@ -117,6 +118,7 @@ MagicSquare/
 │   └── entity/                        ← services, value_objects, constants
 ├── tests/
 │   ├── boundary/                      ← Track A (34건, incl. test_main_window)
+│   ├── control/                       ← SC-CTL-002~004 (3건, G-04)
 │   ├── entity/                        ← Track B (19건 + User 학습용)
 │   ├── golden_master/                 ← capture, approve, scenarios
 │   ├── test_golden_master_magic_square.py  ← GM 12건
@@ -137,7 +139,7 @@ python -m venv .venv
 .venv\Scripts\activate          # Windows
 pip install -e ".[gui]"         # PyQt6 Screen 포함
 
-# 전체 테스트 (65건)
+# 전체 테스트 (68건)
 python -m pytest -q
 
 # Golden Master만 (12건)
@@ -157,22 +159,26 @@ python -m magicsquare.boundary.screen.app --verify   # G1 fixture 자동 입력
 | 문제 인식·정의 (STEP 1~5) | ✅ 완료 |
 | PRD·테스트 플랜 | ✅ 완료 |
 | AC-FR01-01 Boundary RED→GREEN | ✅ 완료 (8건) |
-| FR-01~05 Dual-Track GREEN | ✅ 완료 (65 pytest PASS) |
+| FR-01~05 Dual-Track GREEN | ✅ 완료 (68 pytest PASS) |
 | Golden Master 회귀 (GM-01~10) | ✅ 완료 (12 GM PASS) |
 | PyQt6 Screen (수동 검증) | ✅ 완료 |
-| REFACTOR RF-05 (`_failure` SSOT) | ✅ 완료 |
-| REFACTOR RF-03~04 (SolutionResult, Entity→Control) | ⬜ 미착수 |
-| Screen·Control 단위 테스트 (G-04, G-05) | G-05 ✅ · G-04 ⬜ 미착수 |
-| NFR 커버리지 gate (Boundary·전역) | ✅ 충족 (Boundary 99%, 전역 96%) |
+| REFACTOR RF-03~05 (SolutionResult, Entity→Control, `_failure`) | ✅ 완료 |
+| REFACTOR RF-06~08 (Screen composition·SSOT·CLI) | ✅ 완료 |
+| REFACTOR R-L1~L4 (Grid SSOT, demo_grids, entity cleanup) | ✅ 완료 |
+| REFACTOR R-U2~U3 (ui_boundary Extract Method, grid narrowing) | ✅ 완료 |
+| G-04 Control 단위 테스트 (SC-CTL-002~004) | ✅ 완료 |
+| G-05 Screen headless (`test_main_window.py`) | ✅ 완료 |
+| NFR 커버리지 gate (Boundary·전역) | ✅ 충족 (Boundary 98%, 전역 96%) |
 
 ### pytest 기준선 (G-05 Screen 테스트 반영)
 
 | Track | 경로 | 건수 | 결과 |
 |-------|------|------|------|
 | Boundary | `tests/boundary/` | 34 | PASS |
+| Control | `tests/control/` | 3 | PASS |
 | Entity | `tests/entity/` | 19 | PASS |
 | Golden Master | `tests/test_golden_master_magic_square.py` | 12 | PASS |
-| **합계** | | **65** | **PASS** |
+| **합계** | | **68** | **PASS** |
 
 RED 스켈레톤(`pytest.fail("RED: …")`): **0건** — REFACTOR gate 충족
 
@@ -181,7 +187,7 @@ RED 스켈레톤(`pytest.fail("RED: …")`): **0건** — REFACTOR gate 충족
 | Gate | 목표 | 실측 | 판정 | 주요 원인 |
 |------|------|------|------|-----------|
 | NFR-01 Domain | ≥ 95% | 95% (entity + GM) | ✅ PASS | — |
-| NFR-02 Boundary | ≥ 85% | 99% | ✅ PASS | — |
+| NFR-02 Boundary | ≥ 85% | 98% | ✅ PASS | — |
 | NFR-03 전역 | ≥ 80% | 96% | ✅ PASS | — |
 
 ```bash
@@ -274,16 +280,16 @@ pytest -m golden_master --update-golden -v          # approve 갱신 후 회귀
 |------|-----|-------|------|
 | C1 | RF-01 | Boundary | ✅ 완료 |
 | C2 | RF-02 | Boundary | ✅ 완료 |
-| C3 | RF-03 | Control | ⬜ SolutionResult SSOT |
-| C4 | RF-04 | Control+Entity | ⬜ orchestration Entity→Control 이동 |
+| C3 | RF-03 | Control | ✅ SolutionResult SSOT |
+| C4 | RF-04 | Control+Entity | ✅ orchestration Entity→Control |
 | C5 | RF-05 | Boundary | ✅ `_failure()` extract |
-| C6~C8 | RF-06~08 | Screen | ⬜ G-05 ✅ (`test_main_window.py`) 완료 |
-| C9~C12 | R-L1~L4 | Entity | ⬜ Wave 1 후 |
-| C13~C14 | R-U2~U3 | Boundary | ⬜ Wave 3~4 |
+| C6~C8 | RF-06~08 | Screen | ✅ composition·SSOT·CLI |
+| C9~C12 | R-L1~L4 | Entity | ✅ Grid SSOT·demo_grids·helpers |
+| C13~C14 | R-U2~U3 | Boundary | ✅ ui_boundary Extract Method |
 
-**Phase 0 게이트:** G-01 pytest GREEN ✅ · G-02 GM matched ✅ · G-03 U-FLOW 부분 ✅ · G-04 SC-CTL 테스트 ❌ · G-05 Screen 테스트 ✅
+**Phase 0 게이트:** G-01 pytest GREEN ✅ · G-02 GM matched ✅ · G-03 U-FLOW 부분 ✅ · G-04 SC-CTL ✅ · G-05 Screen ✅
 
-상세: [Report/09.MagicSquare-ECB-REFACTOR-Planning-Session_Report.md](Report/09.MagicSquare-ECB-REFACTOR-Planning-Session_Report.md), [Report/10.MagicSquare-REFACTOR-Program-RF05-Session_Report.md](Report/10.MagicSquare-REFACTOR-Program-RF05-Session_Report.md)
+상세: [Report/09.MagicSquare-ECB-REFACTOR-Planning-Session_Report.md](Report/09.MagicSquare-ECB-REFACTOR-Planning-Session_Report.md), [Report/10.MagicSquare-REFACTOR-Program-RF05-Session_Report.md](Report/10.MagicSquare-REFACTOR-Program-RF05-Session_Report.md), [Report/13.MagicSquare-REFACTOR-Wave-1-4-Complete-Session_Report.md](Report/13.MagicSquare-REFACTOR-Wave-1-4-Complete-Session_Report.md)
 
 ---
 
@@ -297,6 +303,7 @@ pytest -m golden_master --update-golden -v          # approve 갱신 후 회귀
 | 테스트 플랜 | [docs/test_plan.md](docs/test_plan.md) | Dual-Track 시나리오·AC |
 | QA 커버리지 | [Report/11.MagicSquare-QA-Coverage-Analysis-Session_Report.md](Report/11.MagicSquare-QA-Coverage-Analysis-Session_Report.md) | NFR gate 실측 |
 | NFR gate GREEN | [Report/12.MagicSquare-NFR-Coverage-Gate-GREEN-Session_Report.md](Report/12.MagicSquare-NFR-Coverage-Gate-GREEN-Session_Report.md) | G-05·E007 GREEN |
+| REFACTOR Wave 1~4 | [Report/13.MagicSquare-REFACTOR-Wave-1-4-Complete-Session_Report.md](Report/13.MagicSquare-REFACTOR-Wave-1-4-Complete-Session_Report.md) | G-04·RF-03~08·R-L/R-U |
 | Cursor Rules | [.cursor/rules/](.cursor/rules/) | TDD·ECB·금지 패턴 |
 
 ---
@@ -305,14 +312,14 @@ pytest -m golden_master --update-golden -v          # approve 갱신 후 회귀
 
 ```
 문제 정의 ✅ → PRD·테스트 플랜 ✅ → Dual-Track GREEN ✅ → Golden Master ✅
-    → REFACTOR (RF-03~04, Control 테스트) → NFR gate ✅ → 문서 갱신
+    → REFACTOR Wave 1~4 ✅ → NFR gate ✅
 ```
 
-**다음 우선 작업 (세션 09~11 권고):**
+**다음 우선 작업 (REFACTOR 완료 후):**
 
-1. G-04: Control 단위 테스트 GREEN (`SC-CTL-*`)
-2. RF-03: `SolutionResult` SSOT (Control)
-3. RF-04: FR-05 orchestration Entity → Control Move Method
+1. U-FLOW-02 설계 6건 대비 3건 잔여 시나리오 보강 (선택)
+2. RuleCatalog 일원화 (P2 — 별도 REFACTOR)
+3. 문서·Report 세션 13 Export (REFACTOR 완료 기록)
 
 ---
 
@@ -321,6 +328,7 @@ pytest -m golden_master --update-golden -v          # approve 갱신 후 회귀
 | 버전 | 날짜 | 설명 |
 |------|------|------|
 | 1.0 | 2026-05-28 | README 초안 (STEP 1~5 반영) |
+| 2.2 | 2026-05-29 | REFACTOR Wave 1~4 완료 — G-04, RF-03~08, R-L/R-U, 68 pytest |
 | 2.1 | 2026-05-29 | 세션 12 — NFR gate GREEN, G-05·E007, Report/12 |
 | 2.0 | 2026-05-29 | 세션 01~11 진행 현황 반영 — GREEN·GM·REFACTOR·커버리지 |
 

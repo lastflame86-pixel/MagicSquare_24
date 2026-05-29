@@ -9,7 +9,7 @@ from magicsquare.entity.constants import (
     MAGIC_CONSTANT,
 )
 
-Grid = list[list[int]]
+from magicsquare.entity.value_objects.grid import Grid
 
 
 def is_magic_square(grid: Grid) -> bool:

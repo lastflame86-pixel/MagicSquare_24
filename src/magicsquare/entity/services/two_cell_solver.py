@@ -1,28 +1,24 @@
-"""Two-cell solver — FR-05 Step A/B with is_valid_complete (D-SOL-01~03)."""
+"""Two-cell placement helpers — domain primitives for FR-05 Step A/B (RF-04)."""
 
 from __future__ import annotations
 
-from magicsquare.entity.exceptions import UnsolvableDomainError
-from magicsquare.entity.services.empty_cell_locator import find_blank_coords
 from magicsquare.entity.services.magic_square_validator import is_valid_complete
-from magicsquare.entity.services.missing_number_finder import find_not_exist_nums
-
-Grid = list[list[int]]
+from magicsquare.entity.value_objects.grid import Grid
 
 
-def _copy_grid(grid: Grid) -> Grid:
+def copy_grid(grid: Grid) -> Grid:
     """Return a deep copy of grid without mutating the caller input."""
     return [row[:] for row in grid]
 
 
-def _apply_fill(grid: Grid, row: int, col: int, value: int) -> Grid:
+def apply_fill(grid: Grid, row: int, col: int, value: int) -> Grid:
     """Return grid copy with one cell filled (0-index row/col)."""
-    filled = _copy_grid(grid)
+    filled = copy_grid(grid)
     filled[row][col] = value
     return filled
 
 
-def _build_tuple(
+def build_solution_tuple(
     first_row: int,
     first_col: int,
     first_value: int,
@@ -41,7 +37,7 @@ def _build_tuple(
     ]
 
 
-def _is_valid_placement(
+def is_valid_two_cell_placement(
     grid: Grid,
     row_one_index: int,
     col_one_index: int,
@@ -51,42 +47,8 @@ def _is_valid_placement(
     second_value: int,
 ) -> bool:
     """Return True when filling grid produces a complete magic square."""
-    candidate = _apply_fill(grid, row_one_index - 1, col_one_index - 1, first_value)
-    candidate = _apply_fill(
+    candidate = apply_fill(grid, row_one_index - 1, col_one_index - 1, first_value)
+    candidate = apply_fill(
         candidate, row_two_index - 1, col_two_index - 1, second_value
     )
     return is_valid_complete(candidate)
-
-
-def solution(grid: Grid) -> list[int]:
-    """Try Step A then Step B; raise UnsolvableDomainError when both fail."""
-    first, second = find_blank_coords(grid)
-    smaller, larger = find_not_exist_nums(grid)
-
-    step_a = _build_tuple(
-        first.row,
-        first.col,
-        smaller,
-        second.row,
-        second.col,
-        larger,
-    )
-    if _is_valid_placement(
-        grid, first.row, first.col, smaller, second.row, second.col, larger
-    ):
-        return step_a
-
-    step_b = _build_tuple(
-        first.row,
-        first.col,
-        larger,
-        second.row,
-        second.col,
-        smaller,
-    )
-    if _is_valid_placement(
-        grid, first.row, first.col, larger, second.row, second.col, smaller
-    ):
-        return step_b
-
-    raise UnsolvableDomainError("no valid magic square completion")

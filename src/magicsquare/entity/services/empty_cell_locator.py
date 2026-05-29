@@ -6,7 +6,7 @@ from magicsquare.entity.constants import EXPECTED_EMPTY_CELLS, GRID_SIZE
 from magicsquare.entity.exceptions import InvalidGridStateError
 from magicsquare.entity.value_objects.cell_coordinate import CellCoordinate
 
-Grid = list[list[int]]
+from magicsquare.entity.value_objects.grid import Grid
 
 
 def find_blank_coords(grid: Grid) -> tuple[CellCoordinate, CellCoordinate]:

@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 from magicsquare.boundary.error_schema import FailureResponse, SuccessResponse
+from magicsquare.control.solve_partial_magic_square import SolvePartialMagicSquare
 from magicsquare.entity.constants import CELL_MAX, CELL_MIN, GRID_SIZE
 from magicsquare.entity.services.empty_cell_locator import find_blank_coords
 from magicsquare.entity.services.missing_number_finder import find_not_exist_nums
-from magicsquare.entity.services.two_cell_solver import solution
-
-Grid = list[list[int]]
+from magicsquare.entity.services.two_cell_solver import build_solution_tuple
+from magicsquare.entity.value_objects.grid import Grid
 
 
 def assert_int_six_format(data: list[int]) -> None:
@@ -47,15 +47,15 @@ def assert_step_a_fails_step_b_succeeds(grid: Grid) -> None:
     """Domain used reverse fallback: Step A invalid, Step B valid."""
     smaller, larger = find_not_exist_nums(grid)
     first, second = find_blank_coords(grid)
-    step_a = [
+    step_a = build_solution_tuple(
         first.row,
         first.col,
         smaller,
         second.row,
         second.col,
         larger,
-    ]
-    assert solution(grid) != step_a
+    )
+    assert SolvePartialMagicSquare().resolve(grid) != step_a
 
 
 def assert_failure_error_contract(

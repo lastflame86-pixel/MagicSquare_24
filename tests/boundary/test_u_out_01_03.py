@@ -24,7 +24,7 @@ from magicsquare.entity.exceptions import (
     InvalidNumberSetError,
     UnsolvableDomainError,
 )
-from tests.entity.conftest import G1_GRID, G3_GRID
+from magicsquare.entity.demo_grids import G1_GRID, G3_GRID
 
 G1_EXPECTED = [2, 2, 10, 3, 3, 7]
 
